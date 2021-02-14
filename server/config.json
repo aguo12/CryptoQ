@@ -1,3 +1,12 @@
 { 
-  "samplesitekey": "welovehackathons"
+  "keys": {
+    "samplesitekey": "welovehackathons"
+  },
+  "events": {
+      "default": {
+          "startsAt": 12312345,
+          "endsAt": 21342343,
+          "allowPercentile": 2
+      }
+  }
 }
