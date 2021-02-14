@@ -1,12 +1,12 @@
-{ 
-  "keys": {
-    "samplesitekey": "welovehackathonssecretkey"
-  },
+{
   "events": {
-      "default": {
-          "allowPercentile": 2,
-          "isActive": true,
-          "sessionExpiry": 1
-      }
+    "default": {
+      "keys": {
+        "private_key": "welovehackathonssecretkey"
+      },
+      "allowPercentile": 2,
+      "isActive": true,
+      "sessionExpiry": 60000
+    }
   }
 }

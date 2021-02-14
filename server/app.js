@@ -2,11 +2,20 @@ const express = require('express')
 const CryptoJS = require("crypto-js");
 const fs = require('fs')
 const path = require('path')
-var cookieParser = require('cookie-parser')
+const cookieParser = require('cookie-parser');
+const qs = require('qs');
+const {
+  query
+} = require('express');
+const {
+  sign
+} = require('crypto');
+
 const app = express()
 app.use(cookieParser())
-
+app.set('trust proxy', true)
 const port = 3000
+
 let config = JSON.parse(fs.readFileSync('./config.json'))
 
 app.get('*', (req, res) => {
@@ -14,24 +23,41 @@ app.get('*', (req, res) => {
   if (config.events[reqPath] != null && config.events[reqPath]['isActive'] == true) { // Checks if the event name exists & that the event is active
     if (Object.getOwnPropertyNames(req.cookies).length != 0 && req.cookies['queueToken'] != null) { // Checks if the request includes cookies and if it includes queue cookie
       let queueToken = req.cookies['queueToken'];
-      verifyToken(queueToken).then(status => {
-        switch(status){
-          case "allowed":
-            res.sendFile(path.resolve('../client/content.html'));
+      verifyCookie(queueToken, reqPath, req.ip).then(status => {
+        switch (status) {
+          case "allow":
+            createCookie(req.ip, reqPath, 'allow').then(newCookie => {
+              res.sendFile(path.resolve('../client/content.html'));
+              res.cookie('queueToken', newCookie)
+            })
             break;
           case "wait":
-            res.sendFile(path.resolve('../client/queue.html'));
+            createCookie(req.ip, reqPath, 'wait').then(newCookie => {
+              res.sendFile(path.resolve('../client/queue.html'));
+              res.cookie('queueToken', newCookie)
+            })
             break;
           case "expired":
+            createCookie(req.ip, reqPath, 'wait').then(newCookie => {
+              res.sendFile(path.resolve('../client/queue.html'));
+              res.cookie('queueToken', newCookie)
+            })
             break;
         }
       })
     } else {
-      createCookie(req.ip)
       res.sendFile(path.resolve('../client/queue.html'));
+      console.log("hey")
+      createCookie(req.ip, reqPath, 'wait').then(newCookie => {
+        if (newCookie != false) {
+          res.cookie('queueToken', newCookie);
+        } else {
+          res.sendFile(path.resolve('../client/error.html'));
+        }
+      })
     }
   } else {
-    res.sendFile(path.resolve('../client/404.html'));
+    res.sendFile(path.resolve('../client/error.html'));
   }
 })
 
@@ -39,18 +65,30 @@ app.listen(port, () => {
   console.log(`Demo server initialized!`)
 })
 
-let processCookie = () => {
+let verifyCookie = (queueToken, eventName, userIp) => {
   return new Promise((resolve, reject) => {
-    // Decrypt cookie and sign a new one
+    if (qs.parse(queueToken) != null && qs.parse(queueToken).sig != null && qs.parse(queueToken).user != null && qs.parse(queueToken).event != null && qs.parse(queueToken).status != null && qs.parse(queueToken).expiry != null) {
+      let signature = qs.parse(queueToken).sig
+      let originalCookie = `event=${qs.parse(queueToken).event}&status=${qs.parse(queueToken).status}&user=${qs.parse(queueToken).user}&expiry=${qs.parse(queueToken).expiry}&sig=`
+      if (CryptoJS.HmacSHA256(originalCookie, config.events[eventName]['keys']['private_key']).toString() === signature) {
+        console.log('valid')
+      } else {
+        resolve('expired')
+      }
+    } else {
+      resolve('expired')
+    }
   })
 }
 
-let encryptString = (cookieString, keyId) => {
+let createCookie = (userIp, eventName, decision) => {
   return new Promise((resolve, reject) => {
-    if(config.events[keyId] != null){
-        console.log(CryptoJS.HmacSHA256(cookieString, "Key"));
-    } else{
-        resolve(false)
+    if (config.events[eventName] != null) {
+      let cookieString = `event=${eventName}&status=${decision}&user=${userIp}&expiry=${new Date().getTime() + config.events[eventName]['sessionExpiry']}&sig=`
+      let finalString = cookieString + CryptoJS.HmacSHA256(cookieString, config.events[eventName]['keys']['private_key']).toString()
+      resolve(finalString);
+    } else {
+      resolve(false)
     }
   })
 }
