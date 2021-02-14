@@ -1,6 +1,6 @@
 { 
   "keys": {
-    "samplesitekey": "welovehackathons"
+    "samplesitekey": "welovehackathonssecretkey"
   },
   "events": {
       "default": {

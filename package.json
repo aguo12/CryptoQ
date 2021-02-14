@@ -18,6 +18,7 @@
   "homepage": "https://github.com/aguo12/appguard#readme",
   "dependencies": {
     "cookie-parser": "^1.4.5",
+    "crypto-js": "^4.0.0",
     "express": "^4.17.1",
     "node": "^15.8.0"
   }
