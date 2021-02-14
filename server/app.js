@@ -12,6 +12,25 @@ const port = 3000
 
 let config = JSON.parse(fs.readFileSync('./config.json'))
 
+app.post('/create', (req, res) => {
+  if (req.query.eventName != null && req.query.allowRate != null && req.query.expiryTime != null && req.query.privateKey != null) {
+    config.events[req.query.eventName] = {
+      "keys": {
+        "private_key": req.query.privateKey
+      },
+      "allowPercentile": req.query.allowRate,
+      "isActive": true,
+      "sessionExpiry": req.query.expiryTime
+    }
+    fs.writeFileSync('config.json', JSON.stringify(config))
+    res.send({"success": true, "link": `https://aguo.dev/${req.query.eventName}`})
+  } else {
+    res.send({
+      "success": false
+    })
+  }
+})
+
 app.get('*', (req, res) => {
   let reqPath = req.path.replace('/', '')
   if (config.events[reqPath] != null && config.events[reqPath]['isActive'] == true) { // Checks if the event name exists & that the event is active
