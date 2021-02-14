@@ -1,0 +1,127 @@
+<html>
+
+<head>
+    <title>Sample Event</title>
+    <meta name="author" content="Andy Guo">
+    <meta name="keywords" content="MLH">
+    <meta name="description"
+        content="Demonstration page for AppGuard, an application designed to prevent bots and other cyberattacks from taking place using client-side and server-side mechanisms.">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div data-aos="fade-up" id="mainContent">
+        <h1>Please wait...</h1>
+        <h2>
+            Once you are chosen to enter, you will be redirected automatically.<br>
+            Refreshing this site will remove your spot from the line!
+        </h2>
+        <div class="spinner">
+            <div class="double-bounce1"></div>
+            <div class="double-bounce2"></div>
+        </div>
+        <video autoplay muted loop id="videoThing">
+            <source src="./media/shapes.mp4" type="video/mp4">
+        </video>
+    </div>
+    <script>
+        AOS.init();
+    </script>
+</body>
+<style>
+    #videoThing {
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        min-width: 100%;
+        min-height: 100%;
+    }
+
+    #mainContent {
+        position: absolute;
+        height: 500px;
+        width: 500px;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+    }
+
+    html {
+        background-color: none;
+        font-family: 'Montserrat', sans-serif;
+        font-weight: bold;
+        font-size: 110%;
+    }
+
+    h2 {
+        font-weight: normal !important;
+    }
+
+    h1,
+    h2 {
+        color: white !important;
+        vertical-align: middle;
+        text-align: center;
+    }
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+
+        position: relative;
+        margin: 100px auto;
+    }
+
+    .double-bounce1,
+    .double-bounce2 {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background-color: #333;
+        opacity: 0.6;
+        position: absolute;
+        top: 0;
+        left: 0;
+
+        -webkit-animation: sk-bounce 2.0s infinite ease-in-out;
+        animation: sk-bounce 2.0s infinite ease-in-out;
+    }
+
+    .double-bounce2 {
+        -webkit-animation-delay: -1.0s;
+        animation-delay: -1.0s;
+    }
+
+    @-webkit-keyframes sk-bounce {
+
+        0%,
+        100% {
+            -webkit-transform: scale(0.0)
+        }
+
+        50% {
+            -webkit-transform: scale(1.0)
+        }
+    }
+
+    @keyframes sk-bounce {
+
+        0%,
+        100% {
+            transform: scale(0.0);
+            -webkit-transform: scale(0.0);
+        }
+
+        50% {
+            transform: scale(1.0);
+            -webkit-transform: scale(1.0);
+        }
+    }
+</style>
+
+</html>
