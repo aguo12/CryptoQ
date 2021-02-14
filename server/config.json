@@ -1,1 +1,1 @@
-{"events":{"default":{"keys":{"private_key":"welovehackathonssecretkey"},"allowPercentile":15,"isActive":true,"sessionExpiry":30000},"test":{"keys":{"private_key":"test"},"allowPercentile":"3","isActive":true,"sessionExpiry":"3333"}}}
+{"events":{"default":{"keys":{"private_key":"welovehackathonssecretkey"},"allowPercentile":15,"isActive":true,"sessionExpiry":30000},"test":{"keys":{"private_key":"test"},"allowPercentile":"4","isActive":true,"sessionExpiry":"33333"}}}

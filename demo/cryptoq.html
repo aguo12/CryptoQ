@@ -84,7 +84,10 @@
                 }).then(resp => resp.json()).then(json => {
                     if (json['success'] == true) {
                         document.getElementById('create').style.backgroundColor = "#23d5ab"
-                        document.getElementById('create').textContent = json['link']
+                        document.getElementById('create').textContent = "Enter queue!"
+                        document.getElementById('create').addEventListener('click', () =>{
+                            window.location = json['link']
+                        })
                     } else {
                         document.getElementById('create').textContent = "Something went wrong"
                     }

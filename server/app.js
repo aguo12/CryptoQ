@@ -10,7 +10,7 @@ app.use(cookieParser())
 app.set('trust proxy', true)
 const port = 3000
 
-let config = JSON.parse(fs.readFileSync('./config.json'))
+let config = JSON.parse(fs.readFileSync(path.join(__dirname,'./config.json')))
 
 app.post('/create', (req, res) => {
   if (req.query.eventName != null && req.query.allowRate != null && req.query.expiryTime != null && req.query.privateKey != null) {
@@ -22,7 +22,7 @@ app.post('/create', (req, res) => {
       "isActive": true,
       "sessionExpiry": req.query.expiryTime
     }
-    fs.writeFileSync('config.json', JSON.stringify(config))
+    fs.writeFileSync(path.join(__dirname,'./config.json'), JSON.stringify(config))
     res.send({"success": true, "link": `https://aguo.dev/${req.query.eventName}`})
   } else {
     res.send({
