@@ -5,7 +5,7 @@
         "private_key": "welovehackathonssecretkey"
       },
       "allowPercentile": 15,
-      "isActive": false,
+      "isActive": true,
       "sessionExpiry": 30000
     }
   }
