@@ -4,7 +4,7 @@ const fs = require('fs')
 const path = require('path')
 const cookieParser = require('cookie-parser');
 const qs = require('qs');
-
+4
 const app = express()
 app.use(cookieParser())
 app.set('trust proxy', true)
@@ -18,12 +18,12 @@ app.post('/create', (req, res) => {
       "keys": {
         "private_key": req.query.privateKey
       },
-      "allowPercentile": req.query.allowRate,
+      "allowPercentile": parseInt(req.query.allowRate),
       "isActive": true,
-      "sessionExpiry": req.query.expiryTime
+      "sessionExpiry": parseInt(req.query.expiryTime)
     }
-    fs.writeFileSync(path.join(__dirname,'./config.json'), JSON.stringify(config))
-    res.send({"success": true, "link": `https://aguo.dev/${req.query.eventName}`})
+    fs.writeFileSync(path.join(__dirname,'./setup.json'), JSON.stringify(config))
+    res.send({"success": true, "link": `http://localhost:3000/${req.query.eventName}`})
   } else {
     res.send({
       "success": false
@@ -40,36 +40,36 @@ app.get('*', (req, res) => {
         switch (status) {
           case "allow":
             createCookie(req.ip, reqPath, 'allow').then(newCookie => {
-              res.sendFile(path.resolve('../client/content.html'));
+              res.sendFile(path.resolve('../cryptoq/client/content.html'));
               res.cookie('queueToken', newCookie)
             })
             break;
           case "wait":
             createCookie(req.ip, reqPath, 'wait').then(newCookie => {
-              res.sendFile(path.resolve('../client/queue.html'));
+              res.sendFile(path.resolve('../cryptoq/client/queue.html'));
               res.cookie('queueToken', newCookie)
             })
             break;
           case "expired":
             createCookie(req.ip, reqPath, 'wait').then(newCookie => {
-              res.sendFile(path.resolve('../client/expired.html'));
+              res.sendFile(path.resolve('../cryptoq/client/expired.html'));
               res.cookie('queueToken', newCookie)
             })
             break;
         }
       })
     } else {
-      res.sendFile(path.resolve('../client/queue.html'));
+      res.sendFile(path.resolve('../cryptoq/client/queue.html'));
       createCookie(req.ip, reqPath, 'wait').then(newCookie => {
         if (newCookie != false) {
           res.cookie('queueToken', newCookie);
         } else {
-          res.sendFile(path.resolve('../client/error.html'));
+          res.sendFile(path.resolve('../cryptoq/client/error.html'));
         }
       })
     }
   } else {
-    res.sendFile(path.resolve('../client/error.html'));
+    res.sendFile(path.resolve('../cryptoq/client/error.html'));
   }
 })
 
@@ -95,7 +95,7 @@ let verifyCookie = (queueToken, eventName, userIp) => {
                 break;
               case 'wait':
                 let roll = Math.floor(Math.random() * 100);
-                if (roll < config.events[eventName]['allowPercentile']) {
+                if (roll < parseInt(config.events[eventName]['allowPercentile'])) {
                   resolve('allow');
                 } else {
                   resolve('wait')
@@ -119,7 +119,7 @@ let verifyCookie = (queueToken, eventName, userIp) => {
 let createCookie = (userIp, eventName, decision) => {
   return new Promise((resolve, reject) => {
     if (config.events[eventName] != null) {
-      let cookieString = `event=${eventName}&status=${decision}&user=${userIp}&expiry=${new Date().getTime() + config.events[eventName]['sessionExpiry']}&sig=`
+      let cookieString = `event=${eventName}&status=${decision}&user=${userIp}&expiry=${new Date().getTime() + parseInt(config.events[eventName]['sessionExpiry'])}&sig=`
       let finalString = cookieString + CryptoJS.HmacSHA256(cookieString, config.events[eventName]['keys']['private_key']).toString()
       resolve(finalString);
     } else {
