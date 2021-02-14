@@ -4,9 +4,9 @@
   },
   "events": {
       "default": {
-          "startsAt": 12312345,
-          "endsAt": 21342343,
-          "allowPercentile": 2
+          "allowPercentile": 2,
+          "isActive": true,
+          "sessionExpiry": 1
       }
   }
 }
