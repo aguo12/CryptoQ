@@ -4,12 +4,6 @@ const fs = require('fs')
 const path = require('path')
 const cookieParser = require('cookie-parser');
 const qs = require('qs');
-const {
-  query
-} = require('express');
-const {
-  sign
-} = require('crypto');
 
 const app = express()
 app.use(cookieParser())
@@ -39,7 +33,7 @@ app.get('*', (req, res) => {
             break;
           case "expired":
             createCookie(req.ip, reqPath, 'wait').then(newCookie => {
-              res.sendFile(path.resolve('../client/queue.html'));
+              res.sendFile(path.resolve('../client/expired.html'));
               res.cookie('queueToken', newCookie)
             })
             break;
@@ -47,7 +41,6 @@ app.get('*', (req, res) => {
       })
     } else {
       res.sendFile(path.resolve('../client/queue.html'));
-      console.log("hey")
       createCookie(req.ip, reqPath, 'wait').then(newCookie => {
         if (newCookie != false) {
           res.cookie('queueToken', newCookie);
@@ -67,16 +60,39 @@ app.listen(port, () => {
 
 let verifyCookie = (queueToken, eventName, userIp) => {
   return new Promise((resolve, reject) => {
-    if (qs.parse(queueToken) != null && qs.parse(queueToken).sig != null && qs.parse(queueToken).user != null && qs.parse(queueToken).event != null && qs.parse(queueToken).status != null && qs.parse(queueToken).expiry != null) {
+    if (qs.parse(queueToken) != null && qs.parse(queueToken).sig != null && qs.parse(queueToken).user != null && qs.parse(queueToken).event != null && qs.parse(queueToken).status != null && qs.parse(queueToken).expiry != null && qs.parse(queueToken).event === eventName) {
       let signature = qs.parse(queueToken).sig
       let originalCookie = `event=${qs.parse(queueToken).event}&status=${qs.parse(queueToken).status}&user=${qs.parse(queueToken).user}&expiry=${qs.parse(queueToken).expiry}&sig=`
       if (CryptoJS.HmacSHA256(originalCookie, config.events[eventName]['keys']['private_key']).toString() === signature) {
-        console.log('valid')
+        if (userIp != qs.parse(queueToken).user) {
+          resolve('wait');
+        } else {
+          if (new Date().getTime() > qs.parse(queueToken).expiry) {
+            resolve('expired');
+          } else {
+            switch (qs.parse(queueToken).status) {
+              case "allow":
+                resolve('allow');
+                break;
+              case 'wait':
+                let roll = Math.floor(Math.random() * 100);
+                if (roll < config.events[eventName]['allowPercentile']) {
+                  resolve('allow');
+                } else {
+                  resolve('wait')
+                }
+                break;
+              case 'expired':
+                resolve('expired');
+                break;
+            }
+          }
+        }
       } else {
-        resolve('expired')
+        resolve('wait')
       }
     } else {
-      resolve('expired')
+      resolve('wait')
     }
   })
 }
