@@ -4,7 +4,6 @@ const fs = require('fs')
 const path = require('path')
 const cookieParser = require('cookie-parser');
 const qs = require('qs');
-4
 const app = express()
 app.use(cookieParser())
 app.set('trust proxy', true)
